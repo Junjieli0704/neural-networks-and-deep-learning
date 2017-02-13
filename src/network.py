@@ -1,3 +1,4 @@
+#coding=utf-8
 """
 network.py
 ~~~~~~~~~~
@@ -32,11 +33,19 @@ class Network(object):
         self.num_layers = len(sizes)
         self.sizes = sizes
         self.biases = [np.random.randn(y, 1) for y in sizes[1:]]
+
         self.weights = [np.random.randn(y, x)
                         for x, y in zip(sizes[:-1], sizes[1:])]
 
     def feedforward(self, a):
         """Return the output of the network if ``a`` is input."""
+        # ------------------------------AddByJJli,2017-02-13 19 --------------------------
+        # zip() is a useful function, if we don't used zip(), I will program like follows:
+        # for i in range(0,len(self.weights)):
+        #     w = self.weights[i]
+        #     b = self.biases[i]
+        # it will be very tedious.
+        # -----------------------------------------------------------------------------------
         for b, w in zip(self.biases, self.weights):
             a = sigmoid(np.dot(w, a)+b)
         return a
@@ -53,16 +62,30 @@ class Network(object):
         tracking progress, but slows things down substantially."""
         if test_data: n_test = len(test_data)
         n = len(training_data)
+        # ------------------------------AddByJJli,2017-02-13 19 --------------------------
+        # xrange() Like range(), but instead of returning a list, returns an object that
+        # generates the numbers in the range on demand.  For looping, this is
+        # slightly faster than range() and more memory efficient.
+        # 所以xrange做循环的性能比range好，尤其是返回很大的时候，尽量用xrange吧，除非你是要返回一个列表。
+        # -----------------------------------------------------------------------------------
         for j in xrange(epochs):
             random.shuffle(training_data)
-            mini_batches = [
-                training_data[k:k+mini_batch_size]
-                for k in xrange(0, n, mini_batch_size)]
+            # ------------------------------AddByJJli,2017-02-13 19 --------------------------
+            # 这一行的python代码习惯可以学习
+            # 如果不写成一行，就该这么写
+            # mini_batches = []
+            # for k in xrange(0,n,mini_batch_size):
+            #   mini_batches.append(training_data[k:k+mini_batch_size])
+            # -----------------------------------------------------------------------------------
+            mini_batches = [training_data[k:k+mini_batch_size]  for k in xrange(0, n, mini_batch_size)]
+
             for mini_batch in mini_batches:
                 self.update_mini_batch(mini_batch, eta)
             if test_data:
-                print "Epoch {0}: {1} / {2}".format(
-                    j, self.evaluate(test_data), n_test)
+                # ------------------------------AddByJJli,2017-02-13 19 --------------------------
+                # 这种格式化输出的方式也可以学习，自己写的格式化输出的方式太丑了
+                # -----------------------------------------------------------------------------------
+                print "Epoch {0}: {1} / {2}".format(j, self.evaluate(test_data), n_test)
             else:
                 print "Epoch {0} complete".format(j)
 
