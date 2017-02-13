@@ -32,10 +32,47 @@ class Network(object):
         ever used in computing the outputs from later layers."""
         self.num_layers = len(sizes)
         self.sizes = sizes
-        self.biases = [np.random.randn(y, 1) for y in sizes[1:]]
 
-        self.weights = [np.random.randn(y, x)
-                        for x, y in zip(sizes[:-1], sizes[1:])]
+        # ------------------------------AddByJJli,2017-02-13 19 --------------------------------------------------------
+        # if siezs = [2,3,1], then sizes[1:] = [3,1] 除去输入层的一个节点数目向量
+        # 对于输入层 是没有 biases, 其它层每个节点都会有一个bias的值
+        # np.random.randn() Return a sample (or samples) from the “standard normal” distribution.
+        # --------------------------------------------------------------------------------------------------------------
+        # if k = np.random.randn(3, 1)
+        # print k
+        #   [[-0.61339975]
+        #    [ 0.08063831]
+        #    [ 1.05874508]]
+        # print k[0]
+        #   [-0.61339975]
+        # print k[0][0]
+        #   -0.61339975
+        # --------------------------------------------------------------------------------------------------------------
+        # if sizes = [2,3,1]
+        # self.biases = [np.random.randn(y, 1) for y in sizes[1:]]
+        # print self.biases
+        #   [array([[ 1.05544242],
+        #           [-0.31905243],
+        #           [ 0.09201176]]), array([[-1.91692488]])]
+        # print self.biases[0]
+        #   [[ 1.05544242]
+        #    [-0.31905243]
+        #    [ 0.09201176]]
+        # print self.biases[1]
+        #   [[-1.91692488]]
+        # 在 sizes = [2,3,1] 这个例子中
+        # self.biases是一个两维的tensor，self.biases[0]表示隐层所有节点的bias值的矩阵，self.biases[1]表示输出层所有节点的bias值的矩阵
+        # --------------------------------------------------------------------------------------------------------------
+        # if sizes = [2,3,1]
+        # self.weights = [np.random.randn(y, x) for x, y in zip(sizes[:-1], sizes[1:])]
+        # print self.weights
+        # [array([[-0.44147523, -0.14304161],
+        #          [-0.89773065,  0.34085652],
+        #          [-1.28993753, -0.43829499]]), array([[-0.3248269 , -0.83480821, -0.73854788]])]
+        # self.weights是一个两维的tensor，self.weights[0]表示输入层到隐层所有节点的weight值 维度为(3*2)
+        # --------------------------------------------------------------------------------------------------------------
+        self.biases = [np.random.randn(y, 1) for y in sizes[1:]]
+        self.weights = [np.random.randn(y, x) for x, y in zip(sizes[:-1], sizes[1:])]
 
     def feedforward(self, a):
         """Return the output of the network if ``a`` is input."""
@@ -94,16 +131,18 @@ class Network(object):
         gradient descent using backpropagation to a single mini batch.
         The ``mini_batch`` is a list of tuples ``(x, y)``, and ``eta``
         is the learning rate."""
+        # ------------------------------AddByJJli,2017-02-13 19 --------------------------
+        # nabla_w mini_batch之后的w的梯度值，初始化为0
+        # nabla_b mini_batch之后的b的梯度值，初始化为0
+        # -----------------------------------------------------------------------------------
         nabla_b = [np.zeros(b.shape) for b in self.biases]
         nabla_w = [np.zeros(w.shape) for w in self.weights]
         for x, y in mini_batch:
             delta_nabla_b, delta_nabla_w = self.backprop(x, y)
             nabla_b = [nb+dnb for nb, dnb in zip(nabla_b, delta_nabla_b)]
             nabla_w = [nw+dnw for nw, dnw in zip(nabla_w, delta_nabla_w)]
-        self.weights = [w-(eta/len(mini_batch))*nw
-                        for w, nw in zip(self.weights, nabla_w)]
-        self.biases = [b-(eta/len(mini_batch))*nb
-                       for b, nb in zip(self.biases, nabla_b)]
+        self.weights = [w-(eta/len(mini_batch))*nw for w, nw in zip(self.weights, nabla_w)]
+        self.biases =  [b-(eta/len(mini_batch))*nb for b, nb in zip(self.biases, nabla_b)]
 
     def backprop(self, x, y):
         """Return a tuple ``(nabla_b, nabla_w)`` representing the
@@ -115,7 +154,7 @@ class Network(object):
         # feedforward
         activation = x
         activations = [x] # list to store all the activations, layer by layer
-        zs = [] # list to store all the z vectors, layer by layer
+        zs = []           # list to store all the z vectors, layer by layer
         for b, w in zip(self.biases, self.weights):
             z = np.dot(w, activation)+b
             zs.append(z)
@@ -145,8 +184,7 @@ class Network(object):
         network outputs the correct result. Note that the neural
         network's output is assumed to be the index of whichever
         neuron in the final layer has the highest activation."""
-        test_results = [(np.argmax(self.feedforward(x)), y)
-                        for (x, y) in test_data]
+        test_results = [(np.argmax(self.feedforward(x)), y)  for (x, y) in test_data]
         return sum(int(x == y) for (x, y) in test_results)
 
     def cost_derivative(self, output_activations, y):

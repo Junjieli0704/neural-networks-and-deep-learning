@@ -14,5 +14,14 @@ if __name__ == "__main__":
     #print a
     sizes = [2,3,1]
     a = [np.random.randn(y, 1) for y in sizes[1:]]
-    print sizes[1:]
-    print a
+    b = [np.random.randn(y, x) for x, y in zip(sizes[:-1], sizes[1:])]
+    print b
+
+    #print sizes[1:]
+    #print a[0][0]
+    #print a[0][0][0]
+    #print np.random.randn(3, 1)
+    k = np.random.randn(3, 1)
+    #print k
+    #print k[0]
+    #print k[0][0]
