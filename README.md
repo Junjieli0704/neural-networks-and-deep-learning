@@ -1,3 +1,8 @@
+
+Fork from https://github.com/mnielsen/neural-networks-and-deep-learning.git
+
+and add my explanation by JunjieLi@CASIA
+
 # Code samples for "Neural Networks and Deep Learning"
 
 This repository contains code samples for my book on ["Neural Networks
